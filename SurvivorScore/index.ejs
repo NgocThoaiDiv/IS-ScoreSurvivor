@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <title>Farm</title>
+    <style media="screen">
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .landscape-restrict {
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        display: none;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .landscape-restrict img {
+        max-width: 256px;
+      }
+
+      .client-data {
+        left: 0;
+        z-index: 1 !important;
+        display: flex;
+        align-items: center;
+        background-color: azure;
+        border-radius: 1em;
+        box-shadow: 0 0 0.3em 0.3em rgba(0, 0, 0, 0.3);
+      }
+
+      .client-data .avatar {
+        display: flex;
+        align-items: center;
+        padding-right: 2em;
+      }
+
+      .avatar img {
+        width: 3em;
+        height: 3em;
+        box-shadow: 0 0 0.3em 0.3em rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+      }
+
+      .client-data .asset {
+        display: flex;
+        align-items: center;
+        padding: 0.3em 1em;
+        border: 1px dashed coral;
+        border-radius: 1em;
+        box-shadow: 0 0 0.3em 0.3em rgba(0, 0, 0, 0.3);
+      }
+
+      .asset span {
+        margin-right: 2em;
+      }
+
+      .asset img {
+        width: 2em;
+        height: 2em;
+        cursor: pointer;
+      }
+
+      .button-lock-camera {
+        right: 0px;
+        z-index: 1 !important;
+      }
+
+      .utils {
+        width: 100%;
+        height: 100%;
+      }
+
+      .input-panel {
+        z-index: 1 !important;
+
+        background-color: rgb(0, 0, 0, 0.5);
+        border-radius: 2em;
+      }
+
+      .input-panel div {
+        margin: auto;
+      }
+
+      .input-panel input {
+        border-radius: 1em;
+        padding: 1em;
+        margin: 2em;
+      }
+
+      .input-panel button {
+        padding: 1em;
+        border-radius: 1em;
+        border: 0;
+        background-color: azure;
+        margin-right: 1em;
+      }
+
+      #gameContainer {
+        width: 100%;
+        height: 100%;
+      }
+
+      .game {
+        display: flex;
+        justify-content: center;
+      }
+
+      .d-none {
+        display: none !important;
+      }
+
+      .fixed-top {
+        position: fixed;
+      }
+    </style>
+  </head>
+  <body onload='loadData()'>
+    <div class="landscape-restrict fixed-top">
+      <img src="./assets/img/landscape-restrict.gif" alt="landscape-restrict" />
+    </div>
+
+    <div class="game-container" id="gameContainer">
+      <div class='game ss-game-container' id='ssGameContainer'>
+        
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      var userId = "<%= user_id %>";
+      var otherUsers = "<%= otherPlayers %>".split(",").filter((other, idx)=> other!=userId);
+
+      let isTrigger = false;
+      function listenSizeChange(isFirstLoad=false) {
+        // If portrait mode is detected, set the cover display
+        if (window.innerHeight > window.innerWidth) {
+          if(isFirstLoad == true){
+            isTrigger = true;
+          }
+
+          document.getElementsByClassName('landscape-restrict')[0].style.display = 'flex';
+        } else {
+          if(isTrigger == true){
+            document.getElementsByClassName('landscape-restrict')[0].style.display = 'flex';
+            location.reload();
+            return;
+          }
+          isTrigger = false;
+          // If landscape mode, hide the cover display
+          document.getElementsByClassName('landscape-restrict')[0].style.display = 'none';
+        }
+      }
+
+      // Add a listener on resize (and rotation)
+      window.addEventListener('resize', listenSizeChange, false);
+
+      // Init the listener
+      listenSizeChange(true);
+    </script>
+
+    <script src="./assets/libs/dungeon@1.2.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.1/socket.io.js" integrity="sha512-vGcPDqyonHb0c11UofnOKdSAt5zYRpKI4ow+v6hat4i96b7nHSn8PQyk0sT5L9RECyksp+SztCPP6bqeeGaRKg==" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script type="text/javascript" src="./assets/libs/phaser.min.js"></script>
+    <!-- <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script> -->
+
+    <script type="text/javascript" src="./assets/js/SurvivorSettings.js"></script>
+
+    <script type="module" src="./assets/js/SurvivorGame.js"></script>
+
+    <script type="text/javascript">
+      // load client information
+      var isDoneLoadData = true, isDoneLoadGame = false;
+      function loadData() {
+        // let loadingGlobal = document.getElementsByClassName("landscape-restrict")[0];
+        //
+        // let loadDataPromise = new Promise((resolve, reject) => {
+        //   setTimeout( function() {
+        //     resolve("Success!")  // Yay! Everything went well!
+        //   }, 1)
+        // })
+        //
+        // loadDataPromise.then((successMessage) => {
+        //   console.log("Yay! " + successMessage);
+        //   loadingGlobal.style.display = 'none';
+        //
+        //   isDoneLoadData = true;
+        //
+        //   // load script
+        //   let gameScript = document.createElement('script');
+        //   gameScript.type = 'text/javascript';
+        //   gameScript.src = './assets/js/MainFarmScene.js';
+        //   document.body.appendChild(gameScript);
+        // });
+      }
+
+      function resetGame(){
+        SSSocket.emit('reset game');
+      }
+    </script>
+
+  </body>
+</html>
