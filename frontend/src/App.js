@@ -19,7 +19,7 @@ function App() {
   return (
     <div className="App">
       <Typography classes={{root: classes.rootTitle}}>Welcome to the game</Typography>
-      
+      <a href="http://localhost:8887/SurvivorScore/thoai"> Click here</a>
       <Grid container classes={{root: classes.rootGrid}} direction='row' justify='space-around' alignItems='center'>
         <Grid item>
           <PlayerHolder/>
