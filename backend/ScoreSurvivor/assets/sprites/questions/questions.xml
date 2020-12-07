@@ -1,0 +1,21 @@
+<TextureAtlas imagePath="sprites.png">
+	<SubTexture name="level1_count_01.png" x="1347" y="731" width="494" height="280"/>
+	<SubTexture name="level1_figure_calculation_01.png" x="1344" y="333" width="553" height="396"/>
+	<SubTexture name="level1_normal_calculation_01.png" x="0" y="1917" width="612" height="91"/>
+	<SubTexture name="level1_similar_figure_01.png" x="0" y="416" width="701" height="318"/>
+	<SubTexture name="level1_volume_01.png" x="0" y="736" width="681" height="383"/>
+	<SubTexture name="level2_figure_calculation_01.png" x="1837" y="1722" width="388" height="304"/>
+	<SubTexture name="level2_figure_calculation_02.png" x="1350" y="1686" width="485" height="177"/>
+	<SubTexture name="level2_logic_calculation_01.png" x="681" y="1121" width="671" height="563"/>
+	<SubTexture name="level2_logic_calculation_02.png" x="683" y="736" width="662" height="335"/>
+	<SubTexture name="level2_logic_calculation_03.png" x="731" y="0" width="611" height="431"/>
+	<SubTexture name="level3_figure_calculation_01.png" x="0" y="0" width="729" height="414"/>
+	<SubTexture name="level3_figure_scale_01.png" x="1344" y="0" width="591" height="331"/>
+	<SubTexture name="level3_variable_calculation_01.png" x="703" y="433" width="562" height="164"/>
+	<SubTexture name="level3_volume_01.png" x="0" y="1532" width="678" height="383"/>
+	<SubTexture name="level4_logic_calculation_01.png" x="0" y="1121" width="679" height="409"/>
+	<SubTexture name="level4_logic_similar_01.png" x="1354" y="1013" width="486" height="422"/>
+	<SubTexture name="level4_logic_similar_02.png" x="680" y="1686" width="668" height="272"/>
+	<SubTexture name="level4_normal_calculation_01.png" x="1837" y="1437" width="467" height="283"/>
+	<SubTexture name="level4_variable_calculation_01.png" x="1354" y="1437" width="377" height="191"/>
+</TextureAtlas>

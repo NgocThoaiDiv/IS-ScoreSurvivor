@@ -25,14 +25,32 @@ function GameRoom() {
 
   useEffect(() => {
     const socket = socketIOClient(ENDPOINT);
-    socket.on("FromAPI", data => {
-      setResponse(data);
+
+    socket.emit('join-room', { room_id: room, player_id: player });
+
+    socket.on('join-room', function(dataFromServer){
+      // dataFromServer: 
+      // { self: { id: player_id, idx: position in room, isReady: false, isHost }, 
+      //  others: [{ id: player_id, idx: position in room, isReady: false, isHostm }, ...] }
+      // set position for all player, set state for self and others
     });
+
+    socket.on('set-ready', function(dataFromServer){
+      // dataFromServer: { id: player_id, idx: position in room, isReady: false, isHost }
+      // set state for player at idx
+    });
+
+    socket.on('set-start', function(dataFromServer){
+      // dataFromServer: {}
+      // set iframe
+    });
+
     return () => socket.disconnect();
   }, []);
   
-  console.log(room, player, response)
+  console.log(room, player, response);
 
+  // make a function onclick button ready and put on that function: socket.emit('set-ready', { isReady:  }); to tell server
 
   return (
     <div className="GameRoom">

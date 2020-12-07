@@ -1,0 +1,138 @@
+{
+	"questions": {
+		"level1": {
+			"qDesc": {
+				"question1": {
+					"id": "level1_count_01",
+					"answers": [13, 11, 9, 15],
+					"true": "A",
+					"score": 15
+				},
+				"question2": {
+					"id": "level1_figure_calculation_01",
+					"answers": [15, 11, 24, 27],
+					"true": "D",
+					"score": 20
+				},
+				"question3": {
+					"id": "level1_normal_calculation_01",
+					"answers": [450, 2, 30, 8],
+					"true": "B",
+					"score": 10
+				},
+				"question4": {
+					"id": "level1_volume_01",
+					"answers": ["A", "B", "C", "D"],
+					"true": "C",
+					"score": 15
+				},
+				"question5": {
+					"id": "level1_similar_figure_01",
+					"answers": ["A", "B", "C", "D"],
+					"true": "D",
+					"score": 18
+				}
+			},
+			"question_ids": ["level1_count_01", "level1_figure_calculation_01", "level1_normal_calculation_01", "level1_volume_01", "level1_similar_figure_01"]
+		},
+		"level2": {
+			"qDesc": {
+				"question1": {
+					"id": "level2_figure_calculation_01",
+					"answers": [69, 24, 58, 78],
+					"true": "C",
+					"score": 25
+				},
+				"question2": {
+					"id": "level2_figure_calculation_02",
+					"answers": [90, 120, 45, 60],
+					"true": "D",
+					"score": 30
+				},
+				"question3": {
+					"id": "level2_logic_calculation_01",
+					"answers": [18, 20, 32, 40],
+					"true": "A",
+					"score": 33
+				},
+				"question4": {
+					"id": "level2_logic_calculation_02",
+					"answers": [3, 7, 6, 1],
+					"true": "A",
+					"score": 28
+				},
+				"question5": {
+					"id": "level2_logic_calculation_03",
+					"answers": [10, 8, 5, 2],
+					"true": "B",
+					"score": 35
+				}
+			},
+			"question_ids": ["level2_figure_calculation_01", "level2_figure_calculation_02", "level2_logic_calculation_01", "level2_logic_calculation_02", "level2_logic_calculation_03"]
+		},
+		"level3": {
+			"qDesc": {
+				"question1": {
+					"id": "level3_figure_calculation_01",
+					"answers": ["Friday", "Thursday", "Saturday", "Sunday"],
+					"true": "D",
+					"score": 40
+				},
+				"question2": {
+					"id": "level3_figure_scale_01",
+					"answers": ["Car", "Train", "Carriage", "None of the above"],
+					"true": "C",
+					"score": 48
+				},
+				"question3": {
+					"id": "level3_variable_calculation_01",
+					"answers": ["A = 7, B = 1 and C = 0", "A = 7, B = 1 and C = 0", "A = 7, B = 1 and C = 1", "A = 6, B = 1 and C = 1"],
+					"true": "C",
+					"score": 45
+				},
+				"question4": {
+					"id": "level3_volume_01",
+					"answers": [3, 7, 6, 1],
+					"true": "A",
+					"score": 42
+				}
+			},
+			"question_ids": ["level3_figure_calculation_01", "level3_figure_scale_01", "level3_variable_calculation_01", "level3_volume_01"]
+		},
+		"level4": {
+			"qDesc": {
+				"question1": {
+					"id": "level4_logic_calculation_01",
+					"answers": [3, 1, 6, 5],
+					"true": "A",
+					"score": 52
+				},
+				"question2": {
+					"id": "level4_logic_similar_01",
+					"answers": ["A", "B", "C", "D"],
+					"true": "D",
+					"score": 55
+				},
+				"question3": {
+					"id": "level4_logic_similar_02",
+					"answers": ["A", "B", "C", "D"],
+					"true": "A",
+					"score": 58
+				},
+				"question4": {
+					"id": "level4_normal_calculation_01",
+					"answers": ["A", "B", "C", "D"],
+					"true": "D",
+					"score": 60
+				},
+				"question5": {
+					"id": "level4_variable_calculation_01",
+					"answers": ["A", "B", "C", "D"],
+					"true": "C",
+					"score": 65
+				}
+			},
+			"question_ids": ["level4_logic_calculation_01", "level4_logic_similar_01", "level4_logic_similar_02", "level4_normal_calculation_01", "level4_variable_calculation_01"]
+		}
+	}
+}
