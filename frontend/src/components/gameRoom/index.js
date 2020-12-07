@@ -1,8 +1,11 @@
+import React, { useState, useEffect } from "react";
 import '../../App.css';
 import {Grid, Typography} from '@material-ui/core'
 import PlayerHolder from '../playerHolder'
 import { makeStyles } from '@material-ui/core/styles';
 import {useParams} from 'react-router-dom'
+import socketIOClient from "socket.io-client";
+const ENDPOINT = "ws://localhost:8888";
 
 const useStyles = makeStyles({
   rootTitle: {
@@ -18,7 +21,19 @@ const useStyles = makeStyles({
 function GameRoom() {
   const classes = useStyles();
   const {room, player} = useParams();
-  console.log(room, player)
+  const [response, setResponse] = useState("");
+
+  useEffect(() => {
+    const socket = socketIOClient(ENDPOINT);
+    socket.on("FromAPI", data => {
+      setResponse(data);
+    });
+    return () => socket.disconnect();
+  }, []);
+  
+  console.log(room, player, response)
+
+
   return (
     <div className="GameRoom">
       <Typography classes={{root: classes.rootTitle}}>Welcome to the game</Typography>
