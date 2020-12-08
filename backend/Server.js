@@ -158,6 +158,12 @@ function generateDungeon(room_id){
 app.get('/ScoreSurvivor/:room_id&:player_id', function(req, res){
   let room_id = req.body.room_id, player_id = req.body.player_id;
 
+  if(!gameRoomList[room_id] || !clients[player_id]){
+    // illegal access, redirect to homepage
+    res.redirect('https://www.google.com');
+    return;
+  }
+
   res.render('./ScoreSurvivor/index.ejs', { 
     player_id: req.params.player_id, 
     otherPlayers: JSON.parse(JSON.stringify(gameRoomList[room_id].clientList)),
@@ -224,6 +230,7 @@ ioRoom.on('connection', function(socket){
   socket.on('set-ready', function(data){
     // data: { isReady }
     // broadcast all one ready
+    let room_id = clients[socket.player_id].room;
     clients[socket.player_id].playerDecs.isReady = data.isReady;
     ioRoom.to(clients[socket.player_id].room).emit('set-ready', { players: gameRoomList[room_id].clientList.map((other, idx)=> clients[other].playerDecs) });
   });
