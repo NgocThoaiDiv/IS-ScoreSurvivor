@@ -212,14 +212,8 @@ ioRoom.on('connection', function(socket){
       };
       clients[player_id] = { room: room_id, playerDecs: socket.playerDecs };
 
-      // send back to notice join room
-      socket.emit('join-room', { self: socket.playerDecs, 
-        others: gameRoomList[room_id].clientList.map((other, idx)=>{ 
-          if(other != player_id){
-            return clients[other].playerDecs;
-          }
-        }).filter((other, idx)=>other!=null)
-      });
+      // send other new player
+      ioRoom.to(room_id).emit('join-room', { players: gameRoomList[room_id].clientList.map((other, idx)=> clients[other].playerDecs) });
     } else {
       socket.emit('error-access', {
         msg: "No room exist!"
@@ -230,23 +224,32 @@ ioRoom.on('connection', function(socket){
   socket.on('set-ready', function(data){
     // data: { isReady }
     // broadcast all one ready
-    clients[socket.player_id] = data.isReady;
-    io.to(clients[socket.player_id].room).emit('set-ready', clients[socket.player_id].playerDecs);
+    clients[socket.player_id].playerDecs.isReady = data.isReady;
+    ioRoom.to(clients[socket.player_id].room).emit('set-ready', { players: gameRoomList[room_id].clientList.map((other, idx)=> clients[other].playerDecs) });
   });
   
   socket.on('set-start', function(data){
     // data: {}
     // broadcast all game start
-    io.to(clients[socket.player_id].room).emit('set-start');
+    ioRoom.to(clients[socket.player_id].room).emit('set-start');
   });
 
   socket.on('disconnect', function(reason){
     console.log('disconnect', reason);
     // delete client in room and player infor
     if(clients[socket.player_id]){
-      let index = gameRoomList[clients[socket.player_id].room].clientList.indexOf(socket.player_id);
-      gameRoomList[clients[socket.player_id].room].clientList.splice(index, 1);
-      delete clients[socket.player_id];      
+      let room_id = clients[socket.player_id].room, index = gameRoomList[room_id].clientList.indexOf(socket.player_id);
+      gameRoomList[room_id].clientList.splice(index, 1);
+      delete clients[socket.player_id];
+
+      // reupdate idx of all player
+      gameRoomList[room_id].clientList.forEach((client, idx)=>{
+        clients[client].playerDecs.idx = idx;
+        clients[client].playerDecs.isHost = (idx == 0 ? true : false);
+      });
+
+      // send one out
+      ioRoom.to(room_id).emit('join-room', { players: gameRoomList[room_id].clientList.map((other, idx)=> clients[other].playerDecs) });
     }
   });
 
@@ -258,7 +261,7 @@ ioRoom.on('connection', function(socket){
     gameRoomList[room_id].scoreList[player_id] = 0;
     gameRoomList[room_id]['dungeon'] = generateDungeon(room_id);
 
-    io.to(room_id).emit('start-game');
+    ioRoom.to(room_id).emit('start-game');
   });
 });
 
