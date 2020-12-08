@@ -61,6 +61,7 @@ SSSocket.on('congratulation-winner', function(dataFromServer){
 SSSocket.on('time-down', function(dataFromServer){
 	// console.log(dataFromServer);
 	// data: { time }
+	alert(dataFromServer);
 	let data = JSON.parse(JSON.stringify(dataFromServer));
 	let time = {
 		mm: Math.floor(data['time']/60),

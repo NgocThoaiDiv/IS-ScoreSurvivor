@@ -74,6 +74,7 @@ function setGameTimeout(room_id){
   setTimeout(()=>{
     gameRoomList[room_id].limitCountDownInterval = setInterval(()=>{
       io.to(room_id).emit('time-down', { time: --gameRoomList[room_id].limitCountDown });
+      // console.log('time', gameRoomList[room_id].limitCountDown);
 
       // send to client the winner
       if(gameRoomList[room_id].limitCountDown == 0){
@@ -84,7 +85,6 @@ function setGameTimeout(room_id){
         clearInterval(gameRoomList[room_id].limitCountDownInterval);
 
         setTimeout(()=>{
-          createRoom();
           io.to(room_id).emit('shutdown');
         }, 3000);
       }
@@ -321,10 +321,13 @@ io.on('connection', function (socket) {
     }
 
     socket.player_id = player_id;
+
+    setGameTimeout(room_id);
   });
 
   socket.on('moving', function(data){
     // data: { direction, name }
+    console.log('moving');
     io.to(clients[data.name].room).emit('moving', data);
   });
 
@@ -356,9 +359,5 @@ io.on('connection', function (socket) {
     socket.emit('congratulation-question', { score: data['score'] });
 
     io.to(clients[data.name].room).emit('update-score-table', data);
-  });
-
-  socket.on("reset game", function (data) {
-    createRoom();
   });
 });
