@@ -237,10 +237,17 @@ ioRoom.on('connection', function(socket){
   
   socket.on('set-start', function(data){
     // data: {}
+    // check legal access
+    // if(!gameRoomList[room_id] || !clients[player_id]){
+    //   // illegal access, redirect to homepage
+    //   res.redirect('https://www.google.com');
+    //   return;
+    // }
+
     // check all is ready or not
     let isAllReady = true;
     gameRoomList[clients[socket.player_id]].clientList.forEach((client, idx)=>{
-      if(!clients[client].playerDecs.isReady){
+      if(clients[client].playerDecs.id != socket.player_id && !clients[client].playerDecs.isReady){
         isAllReady = false;
       }
     });
