@@ -246,7 +246,7 @@ ioRoom.on('connection', function(socket){
 
     // check all is ready or not
     let isAllReady = true;
-    gameRoomList[clients[socket.player_id]].clientList.forEach((client, idx)=>{
+    gameRoomList[clients[socket.player_id].room].clientList.forEach((client, idx)=>{
       if(clients[client].playerDecs.id != socket.player_id && !clients[client].playerDecs.isReady){
         isAllReady = false;
       }
