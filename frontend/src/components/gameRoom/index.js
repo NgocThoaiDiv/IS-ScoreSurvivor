@@ -75,7 +75,7 @@ function GameRoom() {
       alert(dataFromServer.msg);
 
       // return to home
-      window.location.href = 'https://www.google.com';
+      window.location.href = '/';
     });
 
     return () => socket.disconnect();
