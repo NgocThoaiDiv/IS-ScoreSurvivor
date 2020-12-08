@@ -218,7 +218,7 @@ ioRoom.on('connection', function(socket){
           if(other != player_id){
             return clients[other].playerDecs;
           }
-        })
+        }).filter((other, idx)=>other!=null)
       });
     } else {
       socket.emit('error-access', {
