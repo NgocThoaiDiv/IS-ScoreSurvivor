@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import '../../App.css';
-import {Grid, Typography} from '@material-ui/core'
+import {Button, Grid, Typography, Dialog} from '@material-ui/core'
 import PlayerHolder from '../playerHolder'
 import { makeStyles } from '@material-ui/core/styles';
 import {useParams} from 'react-router-dom'
-import socketIOClient from "socket.io-client";
-const ENDPOINT = "ws://localhost:8888";
+import {socket} from '../../commons/socket'
+import GameHolder from '../gameRoom';
+const url = ''
 
 const useStyles = makeStyles({
   rootTitle: {
@@ -15,35 +16,57 @@ const useStyles = makeStyles({
   },
   rootGrid: { 
     minHeight: '90vh'
+  },
+  paperClaims: {
+    width: '100%',
+    height: '100%',
+    maxWidth: 'unset',
+    maxHeight: 'unset',
+    margin: 0,
+    background: '#E5E5E5',
+    position: 'relative',
   }
 });
 
 function GameRoom() {
   const classes = useStyles();
   const {room, player} = useParams();
-  const [response, setResponse] = useState("");
+  const [userList, setUserList] = useState([]);
+  const [open, setOpen] = useState(false)
 
   useEffect(() => {
-    const socket = socketIOClient(ENDPOINT);
-
     socket.emit('join-room', { room_id: room, player_id: player });
 
-    socket.on('join-room', function(dataFromServer){
-      // dataFromServer: 
-      // { self: { id: player_id, idx: position in room, isReady: false, isHost }, 
-      //  others: [{ id: player_id, idx: position in room, isReady: false, isHostm }, ...] }
-      // set position for all player, set state for self and others
-      console.log(dataFromServer);
-    });
+    // socket.on('join-room', function(dataFromServer){
+    //   // dataFromServer: 
+    //   // { self: { id: player_id, idx: position in room, isReady: false, isHost }, 
+    //   //  others: [{ id: player_id, idx: position in room, isReady: false, isHostm }, ...] }
+    //   // set position for all player, set state for self and others
+    //   console.log('data')
+    // });
 
-    socket.on('set-ready', function(dataFromServer){
+    socket.on("join-room", data => {
+      setUserList(data.players)
+    });
+    
+    
+    //socket.emit('set-ready', {isReady: true})
+    // socket.on('set-start', function(dataFromServer){
+    //   // dataFromServer: {}
+    //   // set iframe
+    // });
+
+    socket.on('set-ready', data =>{
       // dataFromServer: { id: player_id, idx: position in room, isReady: false, isHost }
       // set state for player at idx
+      setUserList(data.players)
+      console.log(data)
     });
 
-    socket.on('set-start', function(dataFromServer){
-      // dataFromServer: {}
-      // set iframe
+    socket.on('set-start', data =>{
+      // dataFromServer: { id: player_id, idx: position in room, isReady: false, isHost }
+      // set state for player at idx
+      console.log(data)
     });
 
     socket.on('error-access', function(dataFromServer){
@@ -57,33 +80,48 @@ function GameRoom() {
 
     return () => socket.disconnect();
   }, []);
-  
-  console.log(room, player, response);
+  console.log(userList)
 
+  const startgame = () => {
+    socket.emit('set-start')
+    setOpen(true)
+  }
+
+  const handleCloseDialog = () => {
+    setOpen(false)
+  }
   // make a function onclick button ready and put on that function: socket.emit('set-ready', { isReady:  }); to tell server
-
   return (
-    <div className="GameRoom">
+    <Grid className="GameRoom">
       <Typography classes={{root: classes.rootTitle}}>Welcome to the game</Typography>
       <a href="http://localhost:8887/SurvivorScore/thoai"> Click here to play</a>
       <Grid container classes={{root: classes.rootGrid}} direction='row' justify='space-around' alignItems='center'>
-        <Grid item>
-          <PlayerHolder/>
-          <PlayerHolder/>
-          
-        </Grid>
-        <Grid item>
-          <PlayerHolder/>
-          <PlayerHolder/>
-          
-        </Grid>
-        <Grid item>
-          <PlayerHolder/>
-          <PlayerHolder/>
-        </Grid>
+          {userList && userList.length !== 0 && userList.map((item, index) => {
+            return (
+              <Grid item key={index}>
+                <PlayerHolder name={item.id} status={item.isReady} isHost={item.isHost}/>
+              </Grid>
+            )
+          })}
       </Grid>
-      
-    </div>
+      <Button variant='contained' onClick={() => startgame()}>Play game</Button>
+      {/* <GameHolder showDialog={open} handleCloseDialog={handleCloseDialog}/> */}
+      <Dialog
+        open={open}
+        onClose={handleCloseDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        disableEscapeKeyDown={true}
+        classes={{
+          paper: classes.paperClaims,
+        }}
+      >
+        <div onClick={handleCloseDialog}>
+          <div>BACK</div>
+        </div>
+        <iframe src={`http://localhost:8887/ScoreSurvivor/${room}&${player}`} height="200" width="300"/>
+      </Dialog>
+    </Grid>
   );
 }
 
