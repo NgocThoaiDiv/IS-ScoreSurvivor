@@ -140,23 +140,13 @@ function generateDungeon(room_id){
     }
   }
 
-  // init zombie
-  gameRoomList[room_id]['dungeon'].zombies = {};
-  gameRoomList[room_id]['dungeon'].rooms.forEach((room, idx)=>{
-    if(room.isContainChest){
-      gameRoomList[room_id]['dungeon'].zombies[md5('hostname_' + 'zombie_' + idx)] = {
-        id: md5('hostname_' + 'zombie_' + idx),
-        destination: room.id
-      }
-    }
-  });
-
   return dungeon;
 }
 
 // http
 app.get('/ScoreSurvivor/:room_id&:player_id', function(req, res){
   let room_id = req.params.room_id, player_id = req.params.player_id;
+  console.log('get game', room_id, player_id);
 
   if(!gameRoomList[room_id] || !clients[player_id]){
     // illegal access, redirect to homepage
@@ -167,7 +157,7 @@ app.get('/ScoreSurvivor/:room_id&:player_id', function(req, res){
   res.render('./ScoreSurvivor/index.ejs', { 
     player_id: req.params.player_id, 
     otherPlayers: JSON.parse(JSON.stringify(gameRoomList[room_id].clientList)),
-    dungeon: gameRoomList[room_id]['dungeon'] 
+    dungeon: JSON.parse(JSON.stringify(gameRoomList[room_id]['dungeon']))
   });
   // res.send({ 
   //   dungeon: gameRoomList[room_id]['dungeon'],
@@ -237,6 +227,13 @@ ioRoom.on('connection', function(socket){
   
   socket.on('set-ready', function(data){
     // data: { isReady }
+    // check legal access
+    if(!checkLegalAccess(socket.player_id)){
+      socket.emit('error-access', {
+        msg: "Error on access!"
+      });
+    }
+
     // broadcast all one ready
     let room_id = clients[socket.player_id].room;
     clients[socket.player_id].playerDecs.isReady = data.isReady;
@@ -253,15 +250,32 @@ ioRoom.on('connection', function(socket){
     }
 
     // check all is ready or not
-    let isAllReady = true;
-    gameRoomList[clients[socket.player_id].room].clientList.forEach((client, idx)=>{
+    let isAllReady = true, room_id = clients[socket.player_id].room;
+    gameRoomList[room_id].clientList.forEach((client, idx)=>{
       if(clients[client].playerDecs.id != socket.player_id && !clients[client].playerDecs.isReady){
         isAllReady = false;
       }
     });
     if(isAllReady){
       // broadcast all game start
-      ioRoom.to(clients[socket.player_id].room).emit('set-start', { ret: isAllReady, msg: '' });
+      ioRoom.to(room_id).emit('set-start', { ret: isAllReady, msg: '' });
+
+      // init game data
+      gameRoomList[room_id].clientList.forEach((client, idx)=>{
+        gameRoomList[room_id].scoreList[client] = 0;
+      });
+      gameRoomList[room_id]['dungeon'] = generateDungeon(room_id);
+
+      // init zombie
+      gameRoomList[room_id]['dungeon'].zombies = {};
+      gameRoomList[room_id]['dungeon'].rooms.forEach((room, idx)=>{
+        if(room.isContainChest){
+          gameRoomList[room_id]['dungeon'].zombies[md5('hostname_' + 'zombie_' + idx)] = {
+            id: md5('hostname_' + 'zombie_' + idx),
+            destination: room.id
+          }
+        }
+      });
     } else {
       // send not ready msg
       socket.emit('set-start', { ret: isAllReady, msg: 'All player is not ready' });
@@ -286,17 +300,6 @@ ioRoom.on('connection', function(socket){
       ioRoom.to(room_id).emit('join-room', { players: gameRoomList[room_id].clientList.map((other, idx)=> clients[other].playerDecs) });
     }
   });
-
-  socket.on('start-game', function(data){
-    console.log('start-game');
-    // data: { room_id, player_id }
-    let player_id = data.player_id, room_id = data.room_id;
-
-    gameRoomList[room_id].scoreList[player_id] = 0;
-    gameRoomList[room_id]['dungeon'] = generateDungeon(room_id);
-
-    ioRoom.to(room_id).emit('start-game');
-  });
 });
 
 // Socket game setup
@@ -307,6 +310,7 @@ io.on('connection', function (socket) {
   // io.to('game1').emit('generate-zombies', zombies); // all in room
 
   socket.on('join-game', function(data){
+    console.log('join-game');
     // data: { player_id }
     let player_id = data.player_id, room_id = clients[player_id].room;
     // join room in io
