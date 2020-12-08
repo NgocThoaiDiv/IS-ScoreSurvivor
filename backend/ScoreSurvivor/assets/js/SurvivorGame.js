@@ -243,6 +243,82 @@ class SurvivorShooterScene extends Phaser.Scene {
 
     this.spaceBar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
+    // copy dungeon
+    (function(){
+      // reuse class dungeon
+      dungeon = new Dungeon({
+        width: 80,
+        height: 40,
+        doorPadding: 2,
+        rooms: {
+          width: { min: 7, max: 15, onlyOdd: true },
+          height: { min: 7, max: 15, onlyOdd: true }
+        }
+      });
+
+      let clone = Object.assign(Object.create(Object.getPrototypeOf(dungeon.rooms[0])), dungeon.rooms[0]);
+
+      // console.log(dungeon, dungeonFromServer);
+
+      dungeon.id = dungeonFromServer.id;
+      dungeon.width = dungeonFromServer.width;
+      dungeon.height = dungeonFromServer.height;
+      dungeon.roomGrid = dungeonFromServer.roomGrid;
+      dungeon.zombies = dungeonFromServer.zombies;
+
+      // update room to match server
+      dungeon.rooms = [];
+      dungeonFromServer.rooms.forEach((room, idx)=>{
+        let tempClone = Object.assign(Object.create(Object.getPrototypeOf(clone)), clone);
+        ['bottom', 'left', 'right', 'top', 'centerX', 'centerY', 'height', 'width', 'x', 'y',
+          'tiles', 'id', 'isContainChest', 'isSepcialChest', 'isContainDeco1', 'isSPawnLocation',
+          'questionMap']
+          .forEach((key, jdx)=>{
+            tempClone[key] = room[key];
+          });
+
+        dungeon.rooms.push(tempClone);
+      });
+
+      // update roomgrid to match server
+      dungeon.roomGrid = dungeonFromServer.roomGrid;
+      dungeonFromServer.roomGrid.forEach((grid, idx)=>{
+        grid.forEach((roomList, jdx)=>{
+          if(roomList.length){
+            dungeon.roomGrid[idx][jdx] = [];
+            roomList.forEach((room, kdx)=>{
+              let tempClone = Object.assign(Object.create(Object.getPrototypeOf(clone)), clone);
+              ['bottom', 'left', 'right', 'top', 'centerX', 'centerY', 'height', 'width', 'x', 'y',
+                'tiles', 'id', 'isContainChest', 'isSepcialChest', 'isContainDeco1', 'isSPawnLocation',
+                'questionMap']
+                .forEach((key, jdx)=>{
+                  tempClone[key] = room[key];
+                });
+
+              dungeon.roomGrid[idx][jdx].push(tempClone);
+            });
+          }
+        });
+      });
+
+      dungeon.tiles = dungeonFromServer.tiles;
+
+      // create gamestate for astar zombie find the chest
+      SSBotState = new SSGameState(dungeon.tiles);
+
+      // console.log(dungeon);
+
+      // let html = dungeon.drawToHtml({
+      //   empty: " ",
+      //   wall: "📦",
+      //   floor: "☁️",
+      //   door: "🚪"
+      // });
+
+      // // Append the element to an existing element on the page
+      // document.body.appendChild(html);
+    })();
+    
     SSScene.loadDungeon();
 
     // load scenes
@@ -408,7 +484,7 @@ class SSUIScene extends Phaser.Scene {
     this.coverBackgroundPanelLayer2 = null;
 
     if(isMobile()){
-      loadUIInteraction(this);
+      // loadUIInteraction(this);
     }
   }
 
