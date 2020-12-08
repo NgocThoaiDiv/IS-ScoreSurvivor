@@ -33,6 +33,7 @@ function GameRoom() {
       // { self: { id: player_id, idx: position in room, isReady: false, isHost }, 
       //  others: [{ id: player_id, idx: position in room, isReady: false, isHostm }, ...] }
       // set position for all player, set state for self and others
+      console.log(dataFromServer);
     });
 
     socket.on('set-ready', function(dataFromServer){
@@ -43,6 +44,15 @@ function GameRoom() {
     socket.on('set-start', function(dataFromServer){
       // dataFromServer: {}
       // set iframe
+    });
+
+    socket.on('error-access', function(dataFromServer){
+      // error in case room is start or no exist room or the name is already exist
+      // dataFromServer: { msg }
+      alert(dataFromServer.msg);
+
+      // return to home
+      window.location.href = 'https://www.google.com';
     });
 
     return () => socket.disconnect();
