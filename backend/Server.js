@@ -184,6 +184,14 @@ const ioRoom = socket(8888, {
     origin: '*',
   }
 });
+function checkLegalAccess(player_id){
+  // check legal access in socket
+  if(clients[player_id] && gameRoomList[clients[player_id].room]){
+    return true;
+  }
+  return false;
+}
+
 ioRoom.on('connection', function(socket){
   socket.on('join-room', function(data){
     console.log('join-room');
@@ -238,11 +246,11 @@ ioRoom.on('connection', function(socket){
   socket.on('set-start', function(data){
     // data: {}
     // check legal access
-    // if(!gameRoomList[room_id] || !clients[player_id]){
-    //   // illegal access, redirect to homepage
-    //   res.redirect('https://www.google.com');
-    //   return;
-    // }
+    if(!checkLegalAccess(socket.player_id)){
+      socket.emit('error-access', {
+        msg: "Error on access!"
+      });
+    }
 
     // check all is ready or not
     let isAllReady = true;
