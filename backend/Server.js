@@ -156,7 +156,7 @@ function generateDungeon(room_id){
 
 // http
 app.get('/ScoreSurvivor/:room_id&:player_id', function(req, res){
-  let room_id = req.body.room_id, player_id = req.body.player_id;
+  let room_id = req.params.room_id, player_id = req.params.player_id;
 
   if(!gameRoomList[room_id] || !clients[player_id]){
     // illegal access, redirect to homepage
@@ -237,8 +237,20 @@ ioRoom.on('connection', function(socket){
   
   socket.on('set-start', function(data){
     // data: {}
-    // broadcast all game start
-    ioRoom.to(clients[socket.player_id].room).emit('set-start');
+    // check all is ready or not
+    let isAllReady = true;
+    gameRoomList[clients[socket.player_id]].clientList.forEach((client, idx)=>{
+      if(!clients[client].playerDecs.isReady){
+        isAllReady = false;
+      }
+    });
+    if(isAllReady){
+      // broadcast all game start
+      ioRoom.to(clients[socket.player_id].room).emit('set-start', { ret: isAllReady, msg: '' });
+    } else {
+      // send not ready msg
+      socket.emit('set-start', { ret: isAllReady, msg: 'All player is not ready' });
+    }    
   });
 
   socket.on('disconnect', function(reason){
