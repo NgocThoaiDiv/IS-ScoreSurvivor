@@ -270,8 +270,8 @@ class SurvivorShooterScene extends Phaser.Scene {
       dungeon.rooms = [];
       dungeonFromServer.rooms.forEach((room, idx)=>{
         let tempClone = Object.assign(Object.create(Object.getPrototypeOf(clone)), clone);
-        ['bottom', 'left', 'right', 'top', 'centerX', 'centerY', 'height', 'width', 'x', 'y',
-          'tiles', 'id', 'isContainChest', 'isSepcialChest', 'isContainDeco1', 'isSPawnLocation',
+        ['bottom', 'left', 'right', 'top', 'centerX', 'centerY', 'height', 'width', 'x', 'y', 'doors',
+          'tiles', 'id', 'isContainChest', 'isSpecialChest', 'isContainDeco1', 'isSPawnLocation',
           'questionMap']
           .forEach((key, jdx)=>{
             tempClone[key] = room[key];
@@ -288,8 +288,8 @@ class SurvivorShooterScene extends Phaser.Scene {
             dungeon.roomGrid[idx][jdx] = [];
             roomList.forEach((room, kdx)=>{
               let tempClone = Object.assign(Object.create(Object.getPrototypeOf(clone)), clone);
-              ['bottom', 'left', 'right', 'top', 'centerX', 'centerY', 'height', 'width', 'x', 'y',
-                'tiles', 'id', 'isContainChest', 'isSepcialChest', 'isContainDeco1', 'isSPawnLocation',
+              ['bottom', 'left', 'right', 'top', 'centerX', 'centerY', 'height', 'width', 'x', 'y', 'doors',
+                'tiles', 'id', 'isContainChest', 'isSpecialChest', 'isContainDeco1', 'isSPawnLocation',
                 'questionMap']
                 .forEach((key, jdx)=>{
                   tempClone[key] = room[key];
@@ -318,7 +318,7 @@ class SurvivorShooterScene extends Phaser.Scene {
       // // Append the element to an existing element on the page
       // document.body.appendChild(html);
     })();
-    
+
     SSScene.loadDungeon();
 
     // load scenes

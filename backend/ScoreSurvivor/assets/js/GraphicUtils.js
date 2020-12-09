@@ -1,8 +1,7 @@
 import { TicTacToeGameState } from './TicTacToe.js';
 
 export var createQuestionTable = function(scene, room){
-  let dialog, sumWidthHeight=GET_SCREEN_WIDTH() + GET_SCREEN_HEIGHT();
-
+  let dialog, sumWidthHeight=GET_SCREEN_WIDTH() + GET_SCREEN_HEIGHT(), iconItem;
   scene.createCoverBackgroundPanel2();
 
   // load tic tac toe game to fight with bot
@@ -85,6 +84,7 @@ export var createQuestionTable = function(scene, room){
   } else {
     // background: scene.add.image(0, 0, 'tableQuestion'),
     // background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, sumWidthHeight/300, COLOR_LIGHT_BROWN),
+    iconItem = scene.add.image(0, 0, 'questions', room.questionMap.id + '.png');
     dialog = scene.rexUI.add.dialog({
       x: GET_SCREEN_WIDTH()/2,
       y: GET_SCREEN_HEIGHT()/2,
@@ -95,12 +95,12 @@ export var createQuestionTable = function(scene, room){
 
       title: createCloseLabel(scene),
 
-      content: scene.add.text(0, 0, 'Question Name', {
+      content: scene.add.text(0, 0, 'Problem', {
         font: sumWidthHeight/75 + 'px monospace',
         color: '#000000'
       }),
 
-      description: scene.add.image(0, 0, 'questions', room.questionMap.id + '.png'),
+      description: scene.add.image(0, 0, 'questions', room.questionMap.id + '.png').setScale(sumWidthHeight/2.5/(iconItem.width > iconItem.height ? iconItem.width : iconItem.height)),
 
       choices: [
         createLabel(scene, 'A. ' + room.questionMap.answers[0], room, true),
@@ -131,6 +131,10 @@ export var createQuestionTable = function(scene, room){
 
       draggable: true
     }).layout();
+  }
+
+  if(iconItem){
+    iconItem.destroy();
   }
 
   return dialog;

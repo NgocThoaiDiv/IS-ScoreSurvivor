@@ -26,7 +26,7 @@ var controls, cursors, activeRoom, isLockCamera;
 var dungeon, layer, map, player, otherPlayers=[];
 var TIC_TAC_TOE;
 
-var debug = true;
+var debug = false;
 
 const TILES = {
   TOP_LEFT_WALL: 3,

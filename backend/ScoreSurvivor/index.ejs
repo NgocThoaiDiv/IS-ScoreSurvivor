@@ -171,12 +171,13 @@
 
     <script type="text/javascript">
       // after load setting, load GET data, join game
-
+      // = to buffer, -
       var userId = "<%= player_id %>";
+      var room_id = "<%= room_id %>";
       var otherUsers = "<%= otherPlayers %>".split(",").filter((other, idx)=> other!=userId);
       var dungeonFromServer = <%- JSON.stringify(dungeon) %>;
 
-      console.log(userId, otherUsers, dungeonFromServer, dungeonFromServer.rooms);
+      // console.log(userId, otherUsers, dungeonFromServer, dungeonFromServer.rooms);
 
       SSSocket.emit('join-game', { player_id: userId });
     </script>
