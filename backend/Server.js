@@ -1,6 +1,6 @@
 const Dungeon = require("@mikewesthad/dungeon");
 const dungeoneer = require('dungeoneer');
-const hostname = '192.168.6.14';
+const hostname = '192.168.1.108';
 const port = 8887;
 
 const express = require('express');
