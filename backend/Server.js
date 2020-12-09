@@ -328,6 +328,14 @@ io.on('connection', function (socket) {
     // console.log('join-game');
     // data: { player_id }
     let player_id = data.player_id, room_id = clients[player_id].room;
+    if(gameRoomList[room_id].isStart){
+      socket.emit('shutdown');
+      return;
+    }
+
+    // set start game
+    gameRoomList[room_id].isStart = true;
+
     // join room in io
     socket.join(room_id);
 
