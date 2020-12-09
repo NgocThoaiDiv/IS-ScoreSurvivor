@@ -10,6 +10,8 @@ class SurvivorShooterScene extends Phaser.Scene {
 
     this.zombieList = []; // list guideline
     this.lastSpaceTime = 0; // delay time open
+    this.activeRoom;
+    this.discoveredRoom = [];
   }
 
   preload(){
@@ -211,11 +213,11 @@ class SurvivorShooterScene extends Phaser.Scene {
     // let playerX=map.tileToWorldX(playerRoom.x + 1 + Math.floor(Math.random()*(playerRoom.width-2))), 
     //   playerY=map.tileToWorldY(playerRoom.y + 1 + Math.floor(Math.random()*(playerRoom.height-2)));
     let playerX = map.tileToWorldX(playerRoom.x+1), playerY = map.tileToWorldX(playerRoom.y+1);
-    player = this.add.existing(new Player(SSScene, playerX+8*layer.scale, playerY+8*layer.scale, 'manBlue_machine_right_fire_', userId));
+    player = this.add.existing(new Player(SSScene, playerX+8*layer.scale, playerY+8*layer.scale, 'manBlue_empty_down_chase_', userId));
 
     // others graphic
     otherUsers.forEach((other, idx)=>{
-      otherPlayers.push(SSScene.add.existing(new Player(SSScene, playerX+8*layer.scale, playerY+8*layer.scale, 'manBlue_machine_right_fire_', other)));
+      otherPlayers.push(SSScene.add.existing(new Player(SSScene, playerX+8*layer.scale, playerY+8*layer.scale, 'manBlue_empty_down_chase_', other)));
     });
 
     if(!debug){
@@ -360,14 +362,26 @@ class SurvivorShooterScene extends Phaser.Scene {
     let room = dungeon.getRoomAt(playerTileX, playerTileY);
 
     // If the player has entered a new room, make it visible and dim the last room
-    if (room && activeRoom && activeRoom !== room){
+    if (room && this.activeRoom && this.activeRoom.id !== room.id){
       if (!debug){
         this.setRoomAlpha(room, 1);
-        this.setRoomAlpha(activeRoom, 0.5);
+        this.setRoomAlpha(this.activeRoom, 0.5);
       }
     }
 
-    activeRoom = room;
+    this.activeRoom = room;
+    this.discoveredRoom.push(this.activeRoom);
+
+    // bright zombie
+    if(!debug){
+      this.zombieList.forEach((zombie, idx)=>{
+        if(zombie.room_id == this.activeRoom.id){
+          zombie.setAlpha(1);
+        } else {
+          zombie.setAlpha(this.discoveredRoom.map(room=>room.id).includes(zombie.room_id) ? 0.5 : 0);
+        }
+      });
+    }
 
     // Smooth follow the player
     let smoothFactor = 0.9;
