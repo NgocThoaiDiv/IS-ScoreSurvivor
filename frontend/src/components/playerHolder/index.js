@@ -33,7 +33,6 @@ const useStyles = makeStyles({
 export default function SimpleCard(props) {
   const {name, status, isHost, isOP} = props
   const classes = useStyles();
-  console.log(status, isHost, isOP)
 
   return (
     <Card className={classes.root}>
