@@ -56,6 +56,7 @@ function GameRoom() {
     // });
 
     socket.on("join-room", data => {
+      console.log(data)
       setUserList(data.players)
     });
     
@@ -67,6 +68,7 @@ function GameRoom() {
     // });
 
     socket.on('set-ready', data =>{
+      console.log(data)
       // dataFromServer: { id: player_id, idx: position in room, isReady: false, isHost }
       // set state for player at idx
       setUserList(data.players)
@@ -85,8 +87,7 @@ function GameRoom() {
       alert(dataFromServer.msg);
 
       // return to home
-      window.location.href = "http://localhost:3000/";
-      // window.location.href = 'https://www.google.com';
+      window.location.href = '/';
     });
 
     return () => socket.disconnect();
@@ -130,7 +131,7 @@ function GameRoom() {
         <div onClick={handleCloseDialog}>
           <div>BACK</div>
         </div>
-        <iframe src={`http://localhost:8887/ScoreSurvivor/${room}&${player}`} height="200" width="300"/>
+        <iframe src={`http://localhost:8887/ScoreSurvivor/${room}&${player}`} height="100%" width="100%"/>
       </Dialog>
     </Grid>
   );
