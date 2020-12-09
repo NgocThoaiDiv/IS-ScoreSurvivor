@@ -124,6 +124,20 @@ export class Zombie extends Character {
 
     this.startTime++;
 
+    // check if the same room with client
+    if(!debug){
+      let zombieTileX = map.worldToTileX(this.x), zombieTileY = map.worldToTileY(this.y),
+        room = dungeon.getRoomAt(zombieTileX, zombieTileY);
+
+      this.room_id = room.id;
+
+      if(this.room_id == SSScene.activeRoom.id){
+        this.setAlpha(1);
+      } else {
+        this.setAlpha(SSScene.discoveredRoom.map(room=>room.id).includes(this.room_id) ? 0.5 : 0);
+      }
+    }
+
     // if not reach continue loop
     if(!this.isReachDestination){
       SSScene.time.delayedCall(20, this.move, [], this); // call delay animation

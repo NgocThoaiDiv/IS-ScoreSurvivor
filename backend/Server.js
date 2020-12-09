@@ -214,6 +214,7 @@ ioRoom.on('connection', function(socket){
       clients[player_id] = { room: room_id, playerDecs: socket.playerDecs };
 
       // send other new player
+      console.log('new join', gameRoomList[room_id].clientList.map((other, idx)=> clients[other].playerDecs));
       ioRoom.to(room_id).emit('join-room', { players: gameRoomList[room_id].clientList.map((other, idx)=> clients[other].playerDecs) });
     } else {
       socket.emit('error-access', {
@@ -255,6 +256,11 @@ ioRoom.on('connection', function(socket){
         isAllReady = false;
       }
     });
+    if(!clients[socket.player_id].playerDecs.isHost){
+      // send not host msg
+      socket.emit('set-start', { ret: false, msg: 'You are not host' });
+      return;
+    }
     if(isAllReady){
       // broadcast all game start
       ioRoom.to(room_id).emit('set-start', { ret: isAllReady, msg: '' });

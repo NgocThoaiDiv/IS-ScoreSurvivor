@@ -100,7 +100,7 @@ export var createQuestionTable = function(scene, room){
         color: '#000000'
       }),
 
-      description: scene.add.image(0, 0, 'questions', room.questionMap.id + '.png').setScale(sumWidthHeight/2.5/(iconItem.width > iconItem.height ? iconItem.width : iconItem.height)),
+      description: scene.add.image(0, 0, 'questions', room.questionMap.id + '.png').setScale(GET_SCREEN_HEIGHT()/2/(iconItem.width > iconItem.height ? iconItem.width : iconItem.height)),
 
       choices: [
         createLabel(scene, 'A. ' + room.questionMap.answers[0], room, true),
