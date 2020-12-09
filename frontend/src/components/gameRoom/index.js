@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import '../../App.css';
-import {Button, Grid, Typography, Dialog} from '@material-ui/core'
+import {Button, Grid, Typography, Dialog, Snackbar, IconButton} from '@material-ui/core'
 import PlayerHolder from '../playerHolder'
 import { makeStyles } from '@material-ui/core/styles';
 import {useParams} from 'react-router-dom'
 import {socket} from '../../commons/socket'
+import CloseIcon from '@material-ui/icons/Close';
 import GameHolder from '../gameRoom';
 const url = ''
 
@@ -32,7 +33,10 @@ function GameRoom() {
   const classes = useStyles();
   const {room, player} = useParams();
   const [userList, setUserList] = useState([]);
+  const [host, setHost] = useState({})
   const [open, setOpen] = useState(false)
+  const [gameHolder, setGameHolder] = useState(true)
+  const [snackbar, setSnackbar] = useState(false)
 
   useEffect(() => {
     // receive msg shutdown from 
@@ -56,8 +60,12 @@ function GameRoom() {
     // });
 
     socket.on("join-room", data => {
-      console.log(data)
       setUserList(data.players)
+      for(var i = 0; i < data.players.length; i++) {
+        if(data.players[i].isHost === true) {
+          setHost(data.players[i])
+        }
+      }
     });
     
     
@@ -68,17 +76,21 @@ function GameRoom() {
     // });
 
     socket.on('set-ready', data =>{
-      console.log(data)
       // dataFromServer: { id: player_id, idx: position in room, isReady: false, isHost }
       // set state for player at idx
       setUserList(data.players)
-      // console.log(data)
+      console.log(data)
     });
 
     socket.on('set-start', data =>{
       // dataFromServer: { id: player_id, idx: position in room, isReady: false, isHost }
       // set state for player at idx
-      // console.log(data)
+      if(data.ret === true) {
+        setGameHolder(false)
+      }
+      if(data.ret === false) {
+        openSnackbar()
+      }
     });
 
     socket.on('error-access', function(dataFromServer){
@@ -94,29 +106,43 @@ function GameRoom() {
   }, []);
   // console.log(userList)
 
+  const closeSnackbar = () => {
+    setSnackbar(false)
+  }
+
+  const openSnackbar = () => {
+    setSnackbar(true)
+  }
+
   const startgame = () => {
-    socket.emit('set-start')
     setOpen(true)
   }
 
   const handleCloseDialog = () => {
     setOpen(false)
   }
+
   // make a function onclick button ready and put on that function: socket.emit('set-ready', { isReady:  }); to tell server
   return (
     <Grid className="GameRoom">
-      <Typography classes={{root: classes.rootTitle}}>Welcome to the game</Typography>
-      <a href="http://localhost:8887/SurvivorScore/thoai"> Click here to play</a>
+      <Typography classes={{root: classes.rootTitle}}>Welcome to Score Survivor</Typography>
       <Grid container classes={{root: classes.rootGrid}} direction='row' justify='space-around' alignItems='center'>
           {userList && userList.length !== 0 && userList.map((item, index) => {
+            if(item.id === player) {
+              return (
+                  <Grid item key={index}>
+                    <PlayerHolder name={item.id} status={item.isReady} isHost={item.isHost} isOP={true}/>
+                  </Grid>
+              )
+            }
             return (
               <Grid item key={index}>
-                <PlayerHolder name={item.id} status={item.isReady} isHost={item.isHost}/>
+                <PlayerHolder name={item.id} status={item.isReady} isHost={item.isHost} isOP={false}/>
               </Grid>
             )
           })}
       </Grid>
-      <Button variant='contained' onClick={() => startgame()}>Play game</Button>
+      <Button variant='contained' disabled={gameHolder} onClick={() => startgame()}>Join game</Button>
       {/* <GameHolder showDialog={open} handleCloseDialog={handleCloseDialog}/> */}
       <Dialog
         open={open}
@@ -128,11 +154,25 @@ function GameRoom() {
           paper: classes.paperClaims,
         }}
       >
-        <div onClick={handleCloseDialog}>
-          <div>BACK</div>
-        </div>
         <iframe src={`http://localhost:8887/ScoreSurvivor/${room}&${player}`} height="100%" width="100%"/>
       </Dialog>
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        open={snackbar}
+        autoHideDuration={6000}
+        onClose={closeSnackbar}
+        message="All user must be ready"
+        action={
+          <React.Fragment>
+            <IconButton size="small" aria-label="close" color="inherit" onClick={closeSnackbar}>
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </React.Fragment>
+        }
+      />
     </Grid>
   );
 }

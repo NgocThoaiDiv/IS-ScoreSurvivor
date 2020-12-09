@@ -23,26 +23,49 @@ const useStyles = makeStyles({
   name: {
     marginBottom: 12,
   },
+  rootCardContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center'
+  }
 });
 
 export default function SimpleCard(props) {
-  const {name, status, setReady} = props
+  const {name, status, isHost, isOP} = props
   const classes = useStyles();
+  console.log(status, isHost, isOP)
 
   return (
     <Card className={classes.root}>
-      <CardContent>
+      <CardContent classes={{root: classes.rootCardContent}}>
         <Typography className={classes.title} color="textSecondary" gutterBottom>
           Player 1
         </Typography>
         <Typography className={classes.name} color="textSecondary">
           {name}
         </Typography>
-        {status === true ? (
+        {/* {isOP === true ? isHost === true ? (
+          <Button variant='contained' onClick={() => socket.emit('set-start')}>Start game</Button>
+        ) : (<Alert severity="success">Host</Alert>) : } */}
+        {isOP === true ? isHost === true ? (
+          <Button variant='contained' onClick={() => socket.emit('set-start')}>Start game</Button>
+        ) : status === true ? (
           <Alert severity="success" onClick={()=> socket.emit('set-ready', {isReady: false})}>Ready</Alert>
         ) : (
           <Button onClick={()=> socket.emit('set-ready', {isReady: true})}>Click here to ready</Button>
+        ) : isHost === true ? (
+          <Alert severity="success">Host</Alert>
+        ) : status === true ? (
+          <Alert severity="success">Ready</Alert>
+        ) : (
+          <Button variant='contained' disabled>Unready</Button>
         )}
+        {/* {isOP === true ? status === true ? (
+          <Alert severity="success" onClick={()=> socket.emit('set-ready', {isReady: false})}>Ready</Alert>) : (
+          <Button onClick={()=> socket.emit('set-ready', {isReady: true})}>Click here to ready</Button>
+        ) : status === true ? (
+          <Alert severity="success">Ready</Alert>) : (<Alert severity="warning">Unready</Alert>)
+        } */}
         
       </CardContent>
     </Card>
