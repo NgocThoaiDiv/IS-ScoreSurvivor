@@ -119,6 +119,8 @@ export var createQuestionTable = function(scene, room){
         description: sumWidthHeight/80,
         choices: sumWidthHeight/150,
 
+        choice: sumWidthHeight/300,
+
         left: sumWidthHeight/80,
         right: sumWidthHeight/80,
         top: sumWidthHeight/100,
