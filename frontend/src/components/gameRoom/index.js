@@ -86,7 +86,7 @@ function GameRoom() {
       // dataFromServer: { id: player_id, idx: position in room, isReady: false, isHost }
       // set state for player at idx
       if(data.ret === true) {
-        setGameHolder(false)
+        setOpen(true)
       }
       if(data.ret === false) {
         openSnackbar()
