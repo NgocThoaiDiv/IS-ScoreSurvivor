@@ -1,6 +1,12 @@
 import { refreshScoreTable, createCongratulation, refreshLimitCountDown } from './GraphicUtils.js';
 
+// SSSocket.emit('test', { player_id: userId });
+SSSocket.on('test', function(dataFromServer){
+  console.log(dataFromServer);
+});
+
 SSSocket.on('moving', function(dataFromServer){
+	// console.log('moving');
   // data: { direction, name }
 	let data = JSON.parse(JSON.stringify(dataFromServer));
 	let name=data.name, direction=data.direction;
@@ -49,7 +55,7 @@ SSSocket.on('update-score-table', function(dataFromServer){
 
 SSSocket.on('congratulation-question', function(dataFromServer){
 	// data: { score }
-	console.log(dataFromServer);
+	// console.log(dataFromServer);
 	createCongratulation(dataFromServer['score']);
 });
 
@@ -61,7 +67,6 @@ SSSocket.on('congratulation-winner', function(dataFromServer){
 SSSocket.on('time-down', function(dataFromServer){
 	// console.log(dataFromServer);
 	// data: { time }
-	alert(dataFromServer);
 	let data = JSON.parse(JSON.stringify(dataFromServer));
 	let time = {
 		mm: Math.floor(data['time']/60),
@@ -73,5 +78,6 @@ SSSocket.on('time-down', function(dataFromServer){
 });
 
 SSSocket.on('shutdown', function(dataFromServer){
-	window.location.replace('https://www.google.com'); // TODO: comeback when finish game
+  parent.postMessage("End Game!", "http://localhost:3000/" + room_id + "&" + userId);
+	// window.location.replace('https://www.google.com'); // TODO: comeback when finish game
 });

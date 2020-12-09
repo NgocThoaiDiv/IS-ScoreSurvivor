@@ -35,6 +35,16 @@ function GameRoom() {
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
+    // receive msg shutdown from 
+    window.addEventListener("message", function (event) {
+      // check is white list access
+      if(event.origin !== "http://localhost:8887")
+        return;
+      
+      // console.log('reload');
+      window.location.reload();
+    });
+
     socket.emit('join-room', { room_id: room, player_id: player });
 
     // socket.on('join-room', function(dataFromServer){
@@ -60,13 +70,13 @@ function GameRoom() {
       // dataFromServer: { id: player_id, idx: position in room, isReady: false, isHost }
       // set state for player at idx
       setUserList(data.players)
-      console.log(data)
+      // console.log(data)
     });
 
     socket.on('set-start', data =>{
       // dataFromServer: { id: player_id, idx: position in room, isReady: false, isHost }
       // set state for player at idx
-      console.log(data)
+      // console.log(data)
     });
 
     socket.on('error-access', function(dataFromServer){
@@ -75,12 +85,13 @@ function GameRoom() {
       alert(dataFromServer.msg);
 
       // return to home
-      window.location.href = 'https://www.google.com';
+      window.location.href = "http://localhost:3000/";
+      // window.location.href = 'https://www.google.com';
     });
 
     return () => socket.disconnect();
   }, []);
-  console.log(userList)
+  // console.log(userList)
 
   const startgame = () => {
     socket.emit('set-start')

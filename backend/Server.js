@@ -43,10 +43,6 @@ app.use(express.json());
 app.use(express.static(__dirname + '/'));
 app.use(cookieParser());
 
-app.get('/', function(req, res){
-  res.send('./index.html');
-});
-
 // init rooms
 var gameRoomList = {}, clients = {}; // list of game rooms, clients
 let ableRoom = ['room1', 'room2', 'room3', 'room4', 'room5'];
@@ -55,7 +51,7 @@ ableRoom.forEach((room_id, idx)=>{
     scoreList: {},
     clientList: [],
     questionCnt: {},
-    limitCountDown: 600,
+    limitCountDown: 120,
     isStart: false
   };
 });
@@ -64,7 +60,7 @@ function resetRoom(room_id){
     scoreList: {},
     clientList: [],
     questionCnt: {},
-    limitCountDown: 600,
+    limitCountDown: 120,
     isStart: false
   };
 }
@@ -74,15 +70,14 @@ function setGameTimeout(room_id){
   setTimeout(()=>{
     gameRoomList[room_id].limitCountDownInterval = setInterval(()=>{
       io.to(room_id).emit('time-down', { time: --gameRoomList[room_id].limitCountDown });
-      // console.log('time', gameRoomList[room_id].limitCountDown);
 
       // send to client the winner
       if(gameRoomList[room_id].limitCountDown == 0){
         let highestScoreUser = Object.keys(gameRoomList[room_id].scoreList).sort((a,b)=>gameRoomList[room_id].scoreList[b]>gameRoomList[room_id].scoreList[a])[0];
 
         io.to(room_id).emit('congratulation-winner', { winner: highestScoreUser });
-        resetRoom(room_id);
         clearInterval(gameRoomList[room_id].limitCountDownInterval);
+        resetRoom(room_id);
 
         setTimeout(()=>{
           io.to(room_id).emit('shutdown');
@@ -104,18 +99,19 @@ function generateDungeon(room_id){
   });
 
   dungeon.id = md5('hostname_' + new Date().getTime());
+  let specicialChesCnt = 0;
   dungeon.rooms.forEach((room, idx)=>{
-    let rand = Math.random(), specicialChesCnt = 0;
+    let rand = Math.random();
     room.isContainChest = false; // locate chest
     room.isContainDeco1 = false; // locate decoration
     room.questionMap = {};
 
     if(rand >= 0.6){
       room.isContainChest = true;
-      room.isSepcialChest = false;
+      room.isSpecialChest = false;
       // specicial chest location
       if(specicialChesCnt < 2){
-        room.isSepcialChest = true;
+        room.isSpecialChest = true;
         specicialChesCnt++;
       } else {
         // random equally question and level
@@ -148,14 +144,15 @@ app.get('/ScoreSurvivor/:room_id&:player_id', function(req, res){
   let room_id = req.params.room_id, player_id = req.params.player_id;
   console.log('get game', room_id, player_id);
 
-  if(!gameRoomList[room_id] || !clients[player_id]){
+  if(!gameRoomList[room_id] || !clients[player_id] || !gameRoomList[room_id]['dungeon']){
     // illegal access, redirect to homepage
-    res.redirect('https://www.google.com');
+    res.redirect('http://localhost:3000/');
     return;
   }
 
-  res.render('./ScoreSurvivor/index.ejs', { 
-    player_id: req.params.player_id, 
+  res.render('./ScoreSurvivor/index.ejs', {
+    player_id: player_id,
+    room_id: room_id,
     otherPlayers: JSON.parse(JSON.stringify(gameRoomList[room_id].clientList)),
     dungeon: JSON.parse(JSON.stringify(gameRoomList[room_id]['dungeon']))
   });
@@ -188,7 +185,7 @@ ioRoom.on('connection', function(socket){
     // data: { room_id, player_id }
     let player_id = data.player_id, room_id = data.room_id;
     // join room in io
-    socket.join(data.room_id);
+    socket.join(room_id);
 
     if(!player_id || player_id.length==0 || 
       (gameRoomList[room_id] && gameRoomList[room_id].clientList.includes(player_id))){
@@ -232,6 +229,7 @@ ioRoom.on('connection', function(socket){
       socket.emit('error-access', {
         msg: "Error on access!"
       });
+      return;
     }
 
     // broadcast all one ready
@@ -247,6 +245,7 @@ ioRoom.on('connection', function(socket){
       socket.emit('error-access', {
         msg: "Error on access!"
       });
+      return;
     }
 
     // check all is ready or not
@@ -305,16 +304,26 @@ ioRoom.on('connection', function(socket){
 // Socket game setup
 const io = socket(server);
 // socket for score survivor
+function checkLegalData(player_id){
+  // check legal access in socket
+  if(clients[player_id] && gameRoomList[clients[player_id].room] && gameRoomList[clients[player_id].room].dungeon){
+    return true;
+  }
+  return false;
+}
 io.on('connection', function (socket) {
   // socket.broadcast.to('game1').emit('generate-zombies', zombies); // exclusive sender
   // io.to('game1').emit('generate-zombies', zombies); // all in room
+  // setInterval(function(){
+  //   socket.emit('test', { msg: 'texxxx--tt' });
+  // }, 1000);
 
   socket.on('join-game', function(data){
-    console.log('join-game');
+    // console.log('join-game');
     // data: { player_id }
     let player_id = data.player_id, room_id = clients[player_id].room;
     // join room in io
-    socket.join(data.room_id);
+    socket.join(room_id);
 
     if(player_id.length > 25) {
       player_id = player_id.splice(0, 25);
@@ -327,14 +336,28 @@ io.on('connection', function (socket) {
 
   socket.on('moving', function(data){
     // data: { direction, name }
-    console.log('moving');
-    io.to(clients[data.name].room).emit('moving', data);
+    // check legal data
+    if(!checkLegalData(socket.player_id)){
+      // socket.emit('error-access', {
+      //   msg: "Error on access!"
+      // });
+      return;
+    }
+    io.to(clients[socket.player_id].room).emit('moving', data);
   });
 
   // when someone solve question
   socket.on('answer-question', function(data){
     // data: { questionId, name, score(can be undefined if normal Q), answer(undefined if TTT) }
     // questionId = roomid in dungeon
+    // check legal data
+    if(!checkLegalData(socket.player_id)){
+      // socket.emit('error-access', {
+      //   msg: "Error on access!"
+      // });
+      return;
+    }
+    let room_id = clients[socket.player_id].room;
     if(!data.score){
       for(let idx=0; idx<gameRoomList[room_id]['dungeon'].rooms.length; idx++){
         let room = gameRoomList[room_id]['dungeon'].rooms[idx];
@@ -347,17 +370,22 @@ io.on('connection', function (socket) {
     }
 
     data['score'] = Math.floor(data['score'] / 
-      Math.pow(2, gameRoomList[clients[data.name].room].questionCnt[data.questionId])); // divide pow 2 of times of question
+      Math.pow(2, gameRoomList[clients[socket.player_id].room].questionCnt[data.questionId])); // divide pow 2 of times of question
     // increase question count
-    gameRoomList[clients[data.name].room].questionCnt[data.questionId]++;
+    gameRoomList[clients[socket.player_id].room].questionCnt[data.questionId]++;
     data['score'] = data['score'] == 0 ? 1 : data['score'];
 
     // update score list on server
-    gameRoomList[clients[data.name].room].scoreList[data.name] += data['score'];
+    gameRoomList[clients[socket.player_id].room].scoreList[socket.player_id] += data['score'];
 
     // send congratulation to user
     socket.emit('congratulation-question', { score: data['score'] });
 
-    io.to(clients[data.name].room).emit('update-score-table', data);
+    io.to(clients[socket.player_id].room).emit('update-score-table', data);
+  });
+
+  socket.on('test', function(data){
+    console.log('test');
+    socket.emit('test', data);
   });
 });
