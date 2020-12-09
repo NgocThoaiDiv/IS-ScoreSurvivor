@@ -77,7 +77,9 @@ SSSocket.on('time-down', function(dataFromServer){
 	refreshLimitCountDown(SSScene, time);
 });
 
-SSSocket.on('shutdown', function(dataFromServer){
+SSSocket.on('shut-down', function(dataFromServer){
+	console.log('being shutdown');
+	alert('being shutdown');
   parent.postMessage("End Game!", "http://localhost:3000/" + room_id + "&" + userId);
 	// window.location.replace('https://www.google.com'); // TODO: comeback when finish game
 });

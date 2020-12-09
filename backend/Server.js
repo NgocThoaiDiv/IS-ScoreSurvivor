@@ -281,6 +281,8 @@ ioRoom.on('connection', function(socket){
           }
         }
       });
+
+      setGameTimeout(room_id);
     } else {
       // send not ready msg
       socket.emit('set-start', { ret: isAllReady, msg: 'All player is not ready' });
@@ -323,15 +325,14 @@ io.on('connection', function (socket) {
   // setInterval(function(){
   //   socket.emit('test', { msg: 'texxxx--tt' });
   // }, 1000);
-
   socket.on('join-game', function(data){
-    // console.log('join-game');
+    console.log('join-game');
     // data: { player_id }
     let player_id = data.player_id, room_id = clients[player_id].room;
-    if(gameRoomList[room_id].isStart){
-      socket.emit('shutdown');
-      return;
-    }
+    // if(!gameRoomList[room_id].isStart){
+    //   socket.emit('shut-down');
+    //   return;
+    // }
 
     // set start game
     gameRoomList[room_id].isStart = true;
@@ -344,8 +345,6 @@ io.on('connection', function (socket) {
     }
 
     socket.player_id = player_id;
-
-    setGameTimeout(room_id);
   });
 
   socket.on('moving', function(data){

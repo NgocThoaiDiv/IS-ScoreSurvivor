@@ -312,6 +312,10 @@ export var createCongratulation = function(score='10', winner=undefined){
       tween.remove();
       label.destroy();
       SSSceneUI.destroyCoverBackgroundPanel2();
+
+      if(winner){
+        parent.postMessage("End Game!", "http://localhost:3000/" + room_id + "&" + userId);
+      }
     }
   });
 };

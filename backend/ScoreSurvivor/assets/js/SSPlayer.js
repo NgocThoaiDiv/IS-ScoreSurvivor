@@ -80,6 +80,24 @@ export class Player extends Character {
 
     this.banner.x = this.x;
     this.banner.y = this.y-this.displayHeight;
+
+    // check if the same room with client
+    if(!debug){
+      if(this.player_id != player.id){
+        let playerTileX = map.worldToTileX(this.x), playerTileY = map.worldToTileY(this.y),
+          room = dungeon.getRoomAt(playerTileX, playerTileY);
+
+        this.room_id = room.id;
+
+        if(SSScene.activeRoom.id && this.room_id == SSScene.activeRoom.id){
+          this.setAlpha(1);
+          this.banner.setAlpha(1);
+        } else {
+          this.setAlpha(SSScene.discoveredRoom.map(room=>room.id).includes(this.room_id) ? 0.5 : 0);
+          this.banner.setAlpha(SSScene.discoveredRoom.map(room=>room.id).includes(this.room_id) ? 0.5 : 0);
+        }
+      }
+    }
   }
 }
 

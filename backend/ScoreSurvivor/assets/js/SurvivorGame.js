@@ -375,10 +375,23 @@ class SurvivorShooterScene extends Phaser.Scene {
     // bright zombie
     if(!debug){
       this.zombieList.forEach((zombie, idx)=>{
-        if(zombie.room_id == this.activeRoom.id){
+        if(zombie.room_id == room.id){
           zombie.setAlpha(1);
         } else {
-          zombie.setAlpha(this.discoveredRoom.map(room=>room.id).includes(zombie.room_id) ? 0.5 : 0);
+          zombie.setAlpha(SSScene.discoveredRoom.map(room=>room.id).includes(zombie.room_id) ? 0.5 : 0);
+        }
+      });
+    }
+
+    // bright other players
+    if(!debug){
+      otherPlayers.filter((other, idx)=>other.player_id != player.player_id).forEach((other, idx)=>{
+        if(other.room_id == room.id){
+          other.setAlpha(1);
+          other.banner.setAlpha(1);
+        } else {
+          other.setAlpha(SSScene.discoveredRoom.map(room=>room.id).includes(other.room_id) ? 0.5 : 0);
+          other.banner.setAlpha(SSScene.discoveredRoom.map(room=>room.id).includes(other.room_id) ? 0.5 : 0);
         }
       });
     }
