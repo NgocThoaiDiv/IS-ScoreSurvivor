@@ -46,7 +46,7 @@ function GameRoom() {
         return;
       
       // console.log('reload');
-      window.location.reload();
+      window.location.href = 'http://localhost:3000';
     });
 
     socket.emit('join-room', { room_id: room, player_id: player });
